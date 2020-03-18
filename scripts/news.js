@@ -7,7 +7,29 @@ var recherche_courante_news = [];
 
 
 function ajouter_recherche() {
-	//TODO ...
+  //déclenché quand click sur icone-disk de la zone 2 - en bas à gauche
+	recherche_courante=$("#zone_saisie").val();
+	var i = recherches.indexOf(recherche_courante);//attention c'est le indexOf de js (celui de util.js est différent)
+	if (i==-1) {
+		//ajout au tableau recherches
+		recherches.push(recherche_courante);
+		var s=$("#recherches-stockees").val();
+		s=s+'<p class="titre-recherche">';
+		s=s+'<label onclick="selectionner_recherche(this)" >'+recherche_courante+'</label>';
+		s=s+'<img src="croix30.jpg" class="icone-croix" onclick="supprimer_recherche(this)"/>';
+		s=s+'</p>';
+		//append dans la zone 1 - en haut à gauche
+		$("#recherches-stockees").append(s);
+		//Create expiring cookie, 100 days from then:
+		// var nameCookie="recherches";
+		// var valueCookie=JSON.stringify(recherches);
+		// var nbJours=100;
+		// $.cookie(nameCookie, valueCookie, {expires: nbJours});
+
+	} else {
+		alert ("Déjà dans liste 1");
+	}
+}
 }
 
 
@@ -44,4 +66,3 @@ function sauver_nouvelle(elt) {
 function supprimer_nouvelle(elt) {
 	//TODO ...
 }
-
