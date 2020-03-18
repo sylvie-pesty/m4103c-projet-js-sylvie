@@ -16,7 +16,7 @@ function ajouter_recherche() {
 		var s=$("#recherches-stockees").val();
 		s=s+'<p class="titre-recherche">';
 		s=s+'<label onclick="selectionner_recherche(this)" >'+recherche_courante+'</label>';
-		s=s+'<img src="croix30.jpg" class="icone-croix" onclick="supprimer_recherche(this)"/>';
+		s=s+'<img src="img/croix30.jpg" class="icone-croix" onclick="supprimer_recherche(this)"/>';
 		s=s+'</p>';
 		//append dans la zone 1 - en haut à gauche
 		$("#recherches-stockees").append(s);
@@ -29,7 +29,6 @@ function ajouter_recherche() {
 	} else {
 		alert ("Déjà dans liste 1");
 	}
-}
 }
 
 
