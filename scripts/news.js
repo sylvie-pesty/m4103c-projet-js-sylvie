@@ -86,23 +86,30 @@ function selectionner_recherche(elt){
   c.value=elt.innerHTML;
 	recherche_courante=elt.innerHTML;
 
+	//puis
 	//Affichage des nouvelles sauvegardées correspondantes
-	// $("#resultats").text(" ");
-	// var myJsonString=$.cookie(recherche_courante);
-	// if (myJsonString != null) {
-	// 	var tabJson = JSON.parse(myJsonString);
-	// 	//recherche_courante_news=[];
-	// 	recherche_courante_news = tabJson; //mise à jour variable globale
-	// 	for (var i = 0; i < tabJson.length; i++) {
-	// 		var titre=decodeEntities(tabJson[i].titre); //decodeentities pas obligatoire?
-	// 		var url=tabJson[i].url;
-	// 		var date=tabJson[i].date;
-	// 		var s='<p class="titre_result"><a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
-	// 		s=s+'<span class="date_news">'+date+'</span>';
-	// 		s=s+'<span class="action_news" onclick="supprime_news(this)"><img src="disk15.jpg" /></span></p>';
-	// 		$("#resultats").append(s);
-	// 	}
-	// }
+	$("#resultats").text("");
+	var name=recherche_courante;
+	var myJsonString=localStorage.getItem(name);
+	if (myJsonString != null) {
+		//alert(name);
+		var tabJson = JSON.parse(myJsonString);
+		recherche_courante_news=[];
+		recherche_courante_news = tabJson; //mise à jour variable globale
+		for (var i = 0; i < tabJson.length; i++) {
+			var titre=decodeHtmlEntities(tabJson[i].titre); //decodeentities pas obligatoire?
+			var url=tabJson[i].url;
+			var date=tabJson[i].date;
+			var s='<p class="titre_result">';
+			s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
+			s=s+'<span class="date_news">'+date+'</span>';
+			s=s+'<span class="action_news" onclick="supprime_news(this)"><img src="img/disk15.jpg" /></span>';
+			s=s+'</p>';
+			$("#resultats").append(s);
+		}
+	}else{
+		alert("riend'enregistré pour "+name);
+	}
 }
 
 
@@ -145,25 +152,80 @@ function maj_resultats(sJson) {
 	//sJson est une chaîne représentant un tableau d'objets au format JSON,
 	//chaque objet correspondant à un résultat avec un titre, une date, une url et un score (?).
 	// on parse la chaine sJson pour en faire un tableau tabJson
-	//mais 03-2020 on n'a plus besoin de faire le parse!!!!
+	//mais 03-2020 on n'a plus besoin de faire le parse car Carl a
+	//mis un header dans le search:
+	//header('Access-Control-Allow-Origin: *');
+	//header('Content-Type: application/json');!!!!
 	var tabJson = sJson;
 	for (var i = 0; i < tabJson.length; i++) {
 		var titre=tabJson[i].titre;
 		var url=tabJson[i].url;
 		var date=tabJson[i].date;
-		var s='<p class="titre_result"><a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
+		date=formatDate(date); //fonction de util.js
+		var s='<p class="titre_result">';
+		s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
 		s=s+'<span class="date_news">'+date+'</span>';
-		s=s+'<span class="action_news" onclick="sauve_news(this)"><img src="img/horloge15.jpg" /></span></p>';
+		s=s+'<span class="action_news" onclick="sauver_nouvelle(this)"><img src="img/horloge15.jpg" /></span>';
+		s=s+'</p>';
 		$("#resultats").append(s);
 	}
 }
 
+function sauver_nouvelle(e) {
+	$(e).html('<img src="img/disk15.jpg"/>');
+	//ou en javascript e.innerHTML='<img src="img/disk15.jpg"/>';
+	$(e).attr("onclick","supprimer_nouvelle(this)");
+	//ou en javascript e.setAttribute("onclick","supprime_news(this)");
 
-function sauver_nouvelle(elt) {
-	//TODO ...
+	var elt=e.parentNode;
+	var x = elt.getElementsByTagName("a")[0].getAttribute("href"); //l'url
+	var y = elt.getElementsByTagName("a")[0].textContent; //le titre
+	var z = elt.getElementsByTagName("span")[0].textContent; //la date
+
+	var o= new Object();
+	o.url=x;
+	o.titre=y;
+	o.date=z;
+
+	//alert(JSON.stringify(o));
+	var i=indexOfResultat(recherche_courante_news,o); //indexOfResultat de util.js
+	// alert("i: "+i);
+	if (i==-1) {
+		recherche_courante_news.push(o);
+	}else {
+		alert("déjà enregistré");
+	}
+	var myJsonString = JSON.stringify(recherche_courante_news);
+	// on sauve
+	var name=recherche_courante;
+	var value=JSON.stringify(recherche_courante_news);
+	localStorage.setItem(name,value);
+	//$.cookie(recherche_courante, myJsonString, { expires: 1000 });
+
 }
 
+function supprimer_nouvelle(e) {
+	$(e).html('<img src="img/horloge15.jpg"/>');
+	//ou en javascript e.innerHTML='<img src="disk15.jpg"/>';
+	$(e).attr("onclick","sauver_nouvelle(this)");
+	//ou en javascript e.setAttribute("onclick","supprime_news(this)");
 
-function supprimer_nouvelle(elt) {
-	//TODO ...
+	var elt=e.parentNode;
+	var x = elt.getElementsByTagName("a")[0].getAttribute("href");//url
+	var y = elt.getElementsByTagName("a")[0].textContent;//titre
+	var z = elt.getElementsByTagName("span")[0].textContent;//date
+
+	var o= new Object();
+	o.url=x;
+	o.titre=y;
+	o.date=z;
+
+	//alert(JSON.stringify(o));
+	var i =indexOfResultat(recherche_courante_news,o); //indexOfResultat de util.js
+	//alert("indice de element à supprimer:"+i);
+
+	var name=recherche_courante;
+	recherche_courante_news.splice(i,1); //suppression de 1 seul elt à l'indice i
+	var value = JSON.stringify(recherche_courante_news);
+	localStorage.setItem(name,value);
 }
