@@ -5,6 +5,13 @@ var recherche_courante;
 // Tableau d'objets de type resultats (avec titre, date et url)
 var recherche_courante_news = [];
 
+// L'interface Storage de l'API Web Storage donne accès au stockage de session (SessionStorage) ou au stockage local (LocalStorage) pour un domaine donné, vous permettant par exemple d'ajouter,
+// de modifier ou de supprimer des éléments enregistrés.
+//localstorage:
+//localStorage.setItem(name,value);
+//localStorage.getItem(name);
+//localstorage.clear()//vide tout le local storage
+//storage.removeItem(name); //vide un item
 
 function ajouter_recherche() {
   //déclenché quand click sur icone-disk de la zone 2 - en bas à gauche
@@ -34,9 +41,7 @@ function ajouter_recherche() {
 		// var nbJours=100;
 		// $.cookie(nameCookie, valueCookie, {expires: nbJours});
 
-		//localstorage
-		//localStorage.setItem(name,value);
-		//localStorage.getItem(name);
+
 		var name="recherches";
 		var value=JSON.stringify(recherches);
 		localStorage.setItem(name,value);
@@ -94,21 +99,24 @@ function selectionner_recherche(elt){
 	if (myJsonString != null) {
 		//alert(name);
 		var tabJson = JSON.parse(myJsonString);
-		recherche_courante_news=[];
+		//initialisation recherche_courante_news
 		recherche_courante_news = tabJson; //mise à jour variable globale
 		for (var i = 0; i < tabJson.length; i++) {
-			var titre=decodeHtmlEntities(tabJson[i].titre); //decodeentities pas obligatoire?
+			var titre=tabJson[i].titre;
+			titre=decodeHtmlEntities(titre); //decodeentities pas obligatoire?
 			var url=tabJson[i].url;
 			var date=tabJson[i].date;
 			var s='<p class="titre_result">';
 			s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
 			s=s+'<span class="date_news">'+date+'</span>';
-			s=s+'<span class="action_news" onclick="supprime_news(this)"><img src="img/disk15.jpg" /></span>';
+			s=s+'<span class="action_news" onclick="supprimer_nouvelle(this)"><img src="img/disk15.jpg" /></span>';
 			s=s+'</p>';
 			$("#resultats").append(s);
 		}
 	}else{
-		alert("riend'enregistré pour "+name);
+		//ne pas oublier la réinitialisation du tableau!
+		recherche_courante_news = [];
+		alert("rien d'enregistré pour "+name);
 	}
 }
 
@@ -139,16 +147,27 @@ function init() {
 function rechercher_nouvelles() {
 	$("#resultats").text(""); //clear de la zone de résultats
 	$("#wait").css("display", "block");
-	var s=$("#zone_saisie").val();
-	recherche_courante=s;
+	var name=$("#zone_saisie").val();
+	recherche_courante=name;
+
+	var myJsonString=localStorage.getItem(name);
+	if (myJsonString != null) {
+	//alert(name);
+	var tabJson = JSON.parse(myJsonString);
+		//initialisation recherche_courante_news
+		recherche_courante_news = tabJson;
+	}
+
 	//alert ("voici ce qu'on envoie au serveur: "+s)
-	$.get('https://carl-vincent.fr/search-internships.php?data='+s,maj_resultats);
+	$.get('https://carl-vincent.fr/search-internships.php?data='+name,maj_resultats);
 	//ou s='data='+s; $.get('search.php',s,maj_resultats);
 }
 
 
+
 function maj_resultats(sJson) {
 	$("#wait").css("display", "none");
+	$("#resultats").text("");
 	//sJson est une chaîne représentant un tableau d'objets au format JSON,
 	//chaque objet correspondant à un résultat avec un titre, une date, une url et un score (?).
 	// on parse la chaine sJson pour en faire un tableau tabJson
@@ -156,18 +175,42 @@ function maj_resultats(sJson) {
 	//mis un header dans le search:
 	//header('Access-Control-Allow-Origin: *');
 	//header('Content-Type: application/json');!!!!
+
+
 	var tabJson = sJson;
 	for (var i = 0; i < tabJson.length; i++) {
 		var titre=tabJson[i].titre;
+		titre=decodeHtmlEntities(titre);
 		var url=tabJson[i].url;
 		var date=tabJson[i].date;
-		date=formatDate(date); //fonction de util.js
-		var s='<p class="titre_result">';
-		s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
-		s=s+'<span class="date_news">'+date+'</span>';
-		s=s+'<span class="action_news" onclick="sauver_nouvelle(this)"><img src="img/horloge15.jpg" /></span>';
-		s=s+'</p>';
-		$("#resultats").append(s);
+		date=formatDate(date);
+
+		var ind=indexOfResultat(recherche_courante_news,tabJson[i]); //indexOfResultat de util.js
+		if (ind == -1) {
+			var s='<p class="titre_result">';
+			s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
+			s=s+'<span class="date_news">'+date+'</span>';
+			s=s+'<span class="action_news" onclick="sauver_nouvelle(this)"><img src="img/horloge15.jpg" /></span>';
+			s=s+'</p>';
+			$("#resultats").append(s);
+
+		}else {
+			var s='<p class="titre_result">';
+			s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
+			s=s+'<span class="date_news">'+date+'</span>';
+			s=s+'<span class="action_news" onclick="supprimer_nouvelle(this)"><img src="img/disk15.jpg" /></span>';
+			s=s+'</p>';
+			$("#resultats").append(s);
+		}
+
+		// var s='<p class="titre_result">';
+		// s=s+'<a class="titre_news" href="'+url+'" target="_blank">'+titre+'</a>';
+		// s=s+'<span class="date_news">'+date+'</span>';
+		// s=s+'<span class="action_news" onclick="sauver_nouvelle(this)"><img src="img/horloge15.jpg" /></span>';
+		// s=s+'</p>';
+		// $("#resultats").append(s);
+
+
 	}
 }
 
@@ -184,23 +227,23 @@ function sauver_nouvelle(e) {
 
 	var o= new Object();
 	o.url=x;
+	y=decodeHtmlEntities(y);
 	o.titre=y;
 	o.date=z;
 
-	//alert(JSON.stringify(o));
 	var i=indexOfResultat(recherche_courante_news,o); //indexOfResultat de util.js
 	// alert("i: "+i);
-	if (i==-1) {
+		if (i==-1) {
+		//alert("j'enregistre");
 		recherche_courante_news.push(o);
 	}else {
 		alert("déjà enregistré");
 	}
-	var myJsonString = JSON.stringify(recherche_courante_news);
-	// on sauve
+		// on sauve
 	var name=recherche_courante;
 	var value=JSON.stringify(recherche_courante_news);
 	localStorage.setItem(name,value);
-	//$.cookie(recherche_courante, myJsonString, { expires: 1000 });
+	//$.cookie(name,value, { expires: 1000 });
 
 }
 
@@ -217,13 +260,13 @@ function supprimer_nouvelle(e) {
 
 	var o= new Object();
 	o.url=x;
+	y=decodeHtmlEntities(y);
 	o.titre=y;
 	o.date=z;
 
 	//alert(JSON.stringify(o));
 	var i =indexOfResultat(recherche_courante_news,o); //indexOfResultat de util.js
 	//alert("indice de element à supprimer:"+i);
-
 	var name=recherche_courante;
 	recherche_courante_news.splice(i,1); //suppression de 1 seul elt à l'indice i
 	var value = JSON.stringify(recherche_courante_news);

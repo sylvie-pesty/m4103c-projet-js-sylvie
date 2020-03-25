@@ -1,7 +1,7 @@
 /**
  * Fonction utilitaire qui décode une chaine sous forme d'entités HTML
  * en une chaine "lisible" (en UTF-8)
- * (Exemple : decodeHtmlEntities("Bienvenue &agrave; toi &#33;") 
+ * (Exemple : decodeHtmlEntities("Bienvenue &agrave; toi &#33;")
  *  => "Bienvenue à toi !")
 */
 function decodeHtmlEntities(encodedString){
@@ -22,7 +22,7 @@ function twoDigits(v){
 }
 
 /**
- * Fonction utilitaire qui formatte une date sous 
+ * Fonction utilitaire qui formatte une date sous
  * la forme "dd/mm hh'h'mm"
 */
 function formatDate(cdate){
@@ -38,7 +38,7 @@ function formatDate(cdate){
 /**
  * Fonction utilitaire qui cherche si l'objet résultat (o) est bien
  * présent dans dans le tableau des résultats (t)
- * => Si un résultat a exactement le même titre et la même date, 
+ * => Si un résultat a exactement le même titre et la même date,
  *     la fonction retourne l'index de celui-ci dans le tableau
  * => Sinon, la fonction retourne -1
 */
@@ -48,7 +48,8 @@ function indexOfResultat(t, o){
 	var i = 0;
 	while( (!trouve) && (i<limit) ){
 		var c = t[i];
-		if ((c.titre == o.titre) && (c.date == o.date)){
+		//if ((c.titre == o.titre) && (c.date == o.date)){
+    if (c.titre == o.titre){
 			trouve = true;
 		}
 		i++;
@@ -58,7 +59,7 @@ function indexOfResultat(t, o){
 }
 
 /**
- * Fonction utilitaire qui retourne le contenu (sa valeur) du cookie 
+ * Fonction utilitaire qui retourne le contenu (sa valeur) du cookie
  * passé en paramètre (OU retourne "" s'il n'existe pas de cookie avec ce nom)
 */
 function getCookie(cname){
