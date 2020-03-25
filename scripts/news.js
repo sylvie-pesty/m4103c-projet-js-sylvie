@@ -54,27 +54,23 @@ function ajouter_recherche() {
 function supprimer_recherche(e){
 	// e est le child du paragraphe p;
 
-	// e.parentNode.removeChild(e); ne retire que la croix
-	var elt_p=e.parentNode;
-	var elt_pp=elt_p.parentNode ;
-	elt_pp.removeChild(elt_p) ;
-
-
+	//mise à jour tableau recherches
 	var x = e.parentNode.querySelector("label").innerHTML; //contenu du label
 	var i=recherches.indexOf(x);
 	recherches.splice(i,1); //suppression de 1 seul elt à l'indice i
-
-	// var nameCookie="recherches";
-	// var valueCookie=JSON.stringify(recherches);
-	// var nbJours=100;
-	// $.cookie(nameCookie, valueCookie, { expires: nbJours});
-	//alert("valueCookie"+valueCookie);
-	//Create expiring cookie, 100 days from then
-
-	//localStorage
 	var name="recherches";
 	var value=JSON.stringify(recherches);
 	localStorage.setItem(name,value);
+
+	//suppression des annonces sauvegardées
+	localStorage.removeItem(x);
+	//suppression affichage des résultats
+	$("#resultats").text("");
+
+	// rmq : e.parentNode.removeChild(e); ne retire que la croix
+	var elt_p=e.parentNode;
+	var elt_pp=elt_p.parentNode ;
+	elt_pp.removeChild(elt_p) ;
 
 }
 
@@ -92,7 +88,8 @@ function selectionner_recherche(elt){
 	recherche_courante=elt.innerHTML;
 
 	//puis
-	//Affichage des nouvelles sauvegardées correspondantes
+	//Affichage des nouvelles sauvegardées correspondantes dans le panneau de
+	//droite
 	$("#resultats").text("");
 	var name=recherche_courante;
 	var myJsonString=localStorage.getItem(name);
