@@ -10,8 +10,8 @@ var recherche_courante_news = [];
 //localstorage:
 //localStorage.setItem(name,value);
 //localStorage.getItem(name);
-//localstorage.clear()//vide tout le local storage
-//storage.removeItem(name); //vide un item
+//localStorage.clear()//vide tout le local storage
+//localStorage.removeItem(name); //supprime un item de nom name
 
 function ajouter_recherche() {
   //déclenché quand click sur icone-disk de la zone 2 - en bas à gauche
@@ -140,8 +140,8 @@ function init() {
 	}
 }
 
-
 function rechercher_nouvelles() {
+	recherche_courante_news = [];
 	$("#resultats").text(""); //clear de la zone de résultats
 	$("#wait").css("display", "block");
 	var name=$("#zone_saisie").val();
