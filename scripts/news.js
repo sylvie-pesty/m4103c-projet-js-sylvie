@@ -155,25 +155,43 @@ function rechercher_nouvelles() {
 		recherche_courante_news = tabJson;
 	}
 
-	//alert ("voici ce qu'on envoie au serveur: "+s)
-	$.get('https://carl-vincent.fr/search-internships.php?data='+name,maj_resultats);
-	//ou s='data='+s; $.get('search.php',s,maj_resultats);
+	//appel Ajax
+ $.get('https://carl-vincent.fr/search-internships.php?data='+name,maj_resultats);
+
+	//ou
+	// $.ajax({
+  //      url : 'https://carl-vincent.fr/search-internships.php',
+  //      type : 'GET',
+	// 		 //data : 'email=' + email + '&contenu=' + contenu_mail,
+	// 		 data : 'data=' + name, //
+  //      dataType : 'json', // Le type de données à recevoir
+  //      success : function(code_json, statut){ // success est toujours en place, bien sûr !
+	//            maj_resultats(code_json);
+	//        }
+	// 			 // ,
+	// 			 //
+	//        // error : function(resultat, statut, erreur){
+	// 				//  	alert("erreur: "+statut);
+	//        // },
+	// 			 //
+	//        // complete : function(resultat, statut){
+	// 				//  	alert("ok: "+statut);
+	//        // }
+	//
+  //   });
 }
 
 
-
+//sJson est une chaîne représentant un tableau d'objets au format JSON,
+//chaque objet correspondant à un résultat avec un titre, une date, une url et un score (?).
+// on parse la chaine sJson pour en faire un tableau tabJson
+//mais 03-2020 on n'a plus besoin de faire le parse car Carl a
+//mis un header dans le search:
+//header('Access-Control-Allow-Origin: *');
+//header('Content-Type: application/json');!!!!
 function maj_resultats(sJson) {
 	$("#wait").css("display", "none");
 	$("#resultats").text("");
-	//sJson est une chaîne représentant un tableau d'objets au format JSON,
-	//chaque objet correspondant à un résultat avec un titre, une date, une url et un score (?).
-	// on parse la chaine sJson pour en faire un tableau tabJson
-	//mais 03-2020 on n'a plus besoin de faire le parse car Carl a
-	//mis un header dans le search:
-	//header('Access-Control-Allow-Origin: *');
-	//header('Content-Type: application/json');!!!!
-
-
 	var tabJson = sJson;
 	for (var i = 0; i < tabJson.length; i++) {
 		var titre=tabJson[i].titre;
@@ -212,8 +230,11 @@ function maj_resultats(sJson) {
 }
 
 function sauver_nouvelle(e) {
-	$(e).html('<img src="img/disk15.jpg"/>');
+	//en jQuery
+	//$(e).html('<img src="img/disk15.jpg"/>');
 	//ou en javascript e.innerHTML='<img src="img/disk15.jpg"/>';
+	//ou encore
+	e.childNodes[0].setAttribute("src","img/disk15.jpg");
 	$(e).attr("onclick","supprimer_nouvelle(this)");
 	//ou en javascript e.setAttribute("onclick","supprime_news(this)");
 
